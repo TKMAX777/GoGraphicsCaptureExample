@@ -218,7 +218,7 @@ func D3D11CreateDevice(
 	Software win.HMODULE,
 	Flags D3D11_CREATE_DEVICE_FLAG,
 	pFeatureLevels *D3D_FEATURE_LEVEL,
-	FeatureLevels int,
+	FeatureLevels uintptr,
 	SDKVersion uint32,
 	ppDevice **ID3D11Device,
 	pFeatureLevel *D3D_FEATURE_LEVEL,
