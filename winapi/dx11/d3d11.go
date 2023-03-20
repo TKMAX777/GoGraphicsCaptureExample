@@ -212,19 +212,19 @@ var pD3DCreateDevice = d3d11DLL.MustFindProc("D3D11CreateDevice")
 
 // CreateDevice
 // https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-d3d11createdevice
-func D3DCreateDevice(
+func D3D11CreateDevice(
 	pAdapter *IDXGIAdapter,
 	DriverType D3D_DRIVER_TYPE,
 	Software win.HMODULE,
 	Flags D3D11_CREATE_DEVICE_FLAG,
 	pFeatureLevels *D3D_FEATURE_LEVEL,
-	FeatureLevels uint32,
+	FeatureLevels int,
 	SDKVersion uint32,
 	ppDevice **ID3D11Device,
 	pFeatureLevel *D3D_FEATURE_LEVEL,
 	ppImmediateContext **ID3D11DeviceContext,
 ) error {
-	r1, _, err := pD3DCreateDevice.Call(
+	r1, _, _ := pD3DCreateDevice.Call(
 		uintptr(unsafe.Pointer(pAdapter)),
 		uintptr(DriverType),
 		uintptr(Software),
@@ -237,7 +237,7 @@ func D3DCreateDevice(
 		uintptr(unsafe.Pointer(ppImmediateContext)),
 	)
 	if r1 != win.S_OK {
-		return err
+		return ole.NewError(r1)
 	}
 	return nil
 }

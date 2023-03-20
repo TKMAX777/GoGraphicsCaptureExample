@@ -222,7 +222,7 @@ func (v *IDirect3D11CaptureFramePoolStatics2) VTable() *IDirect3D11CaptureFrameP
 	return (*IDirect3D11CaptureFramePoolStatics2Vtbl)(unsafe.Pointer(v.RawVTable))
 }
 
-func (v *IDirect3D11CaptureFramePoolStatics2) CreateFreeThreaded(device *IDirect3DDevice, pixelFormat DirectXPixelFormat, numberOfBuffers int32, size SizeInt32) (*IDirect3D11CaptureFramePool, error) {
+func (v *IDirect3D11CaptureFramePoolStatics2) CreateFreeThreaded(device *IDirect3DDevice, pixelFormat DirectXPixelFormat, numberOfBuffers int32, size *SizeInt32) (*IDirect3D11CaptureFramePool, error) {
 	var ret *IDirect3D11CaptureFramePool
 	r1, _, _ := syscall.SyscallN(v.VTable().CreateFreeThreaded, uintptr(unsafe.Pointer(v)), uintptr(pixelFormat), uintptr(numberOfBuffers), uintptr(unsafe.Pointer(&size.Width)), uintptr(unsafe.Pointer(&ret)))
 	if r1 != win.S_OK {

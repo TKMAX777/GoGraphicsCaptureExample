@@ -8,6 +8,8 @@ import (
 
 var IDXGIObjectID = ole.NewGUID("{aec22fb8-76f3-4639-9be0-28eb43a67a2e}")
 
+type IDXGIAdapter uintptr
+
 type IDXGIObject struct {
 	ole.IUnknown
 }
