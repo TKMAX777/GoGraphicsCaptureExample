@@ -1,6 +1,7 @@
 package dx11
 
 import (
+	"syscall"
 	"unsafe"
 
 	"github.com/go-ole/go-ole"
@@ -80,6 +81,11 @@ type ID3D11DeviceVtbl struct {
 
 func (v *ID3D11Device) VTable() *ID3D11DeviceVtbl {
 	return (*ID3D11DeviceVtbl)(unsafe.Pointer(v.RawVTable))
+}
+
+func (v *ID3D11Device) GetImmediateContext() (pImmediateContext *ID3D11DeviceContext) {
+	syscall.SyscallN(v.VTable().GetImmediateContext, uintptr(unsafe.Pointer(v)), uintptr(unsafe.Pointer(&pImmediateContext)))
+	return pImmediateContext
 }
 
 var ID3D11DeviceContextID = ole.NewGUID("{c0bfa96c-e089-44fb-8eaf-26f8796190da}")
