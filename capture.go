@@ -21,13 +21,27 @@ type CaptureHandler struct {
 }
 
 func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
-	err := winrt.RoInitialize(winrt.RO_INIT_SINGLETHREADED)
+	err := winrt.RoInitialize(winrt.RO_INIT_MULTITHREADED)
 	if err != nil {
 		return errors.Wrap(err, "RoInitialize")
 	}
+	defer winrt.RoUninitialize()
+
+	var featureLevels = []dx11.D3D_FEATURE_LEVEL{
+		dx11.D3D_FEATURE_LEVEL_11_0,
+		dx11.D3D_FEATURE_LEVEL_10_1,
+		dx11.D3D_FEATURE_LEVEL_10_0,
+		dx11.D3D_FEATURE_LEVEL_9_3,
+		dx11.D3D_FEATURE_LEVEL_9_2,
+		dx11.D3D_FEATURE_LEVEL_9_1,
+	}
 
 	var device *dx11.ID3D11Device
-	err = dx11.D3DCreateDevice(nil, dx11.D3D_DRIVER_TYPE_HARDWARE, 0, dx11.D3D11_CREATE_DEVICE_BGRA_SUPPORT, nil, 0, dx11.D3D11_SDK_VERSION, &device, nil, nil)
+	err = dx11.D3D11CreateDevice(
+		nil, dx11.D3D_DRIVER_TYPE_HARDWARE, 0, dx11.D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+		&featureLevels[0], len(featureLevels),
+		dx11.D3D11_SDK_VERSION, &device, nil, nil,
+	)
 	if err != nil {
 		return errors.Wrap(err, "D3DCreateDevice")
 	}
@@ -96,7 +110,7 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 		return errors.Wrap(err, "PutQueryInterface: IDirect3D11CaptureFramePoolStaticsID")
 	}
 
-	c.framePool, err = framePoolStatic.Create(c.device, winrt.DirectXPixelFormat_B8G8R8A8UIntNormalized, 2, size)
+	c.framePool, err = framePoolStatic.Create(c.device, winrt.DirectXPixelFormat_B8G8R8A8UIntNormalized, 1, size)
 	if err != nil {
 		return errors.Wrap(err, "CreateFramePool")
 	}
