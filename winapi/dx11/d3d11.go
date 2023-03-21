@@ -1,15 +1,15 @@
 package dx11
 
 import (
-	"syscall"
 	"unsafe"
 
 	"github.com/go-ole/go-ole"
 	"github.com/lxn/win"
+	"golang.org/x/sys/windows"
 )
 
 var (
-	d3d11DLL = syscall.MustLoadDLL("d3d11.dll")
+	d3d11DLL = windows.NewLazySystemDLL("d3d11.dll")
 )
 
 const D3D11_SDK_VERSION = 7
@@ -208,7 +208,7 @@ func (v *ID3D11DeviceContext) VTable() *ID3D11DeviceContextVtbl {
 	return (*ID3D11DeviceContextVtbl)(unsafe.Pointer(v.RawVTable))
 }
 
-var pD3DCreateDevice = d3d11DLL.MustFindProc("D3D11CreateDevice")
+var pD3DCreateDevice = d3d11DLL.NewProc("D3D11CreateDevice")
 
 // CreateDevice
 // https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-d3d11createdevice
@@ -218,7 +218,7 @@ func D3D11CreateDevice(
 	Software win.HMODULE,
 	Flags D3D11_CREATE_DEVICE_FLAG,
 	pFeatureLevels *D3D_FEATURE_LEVEL,
-	FeatureLevels uintptr,
+	FeatureLevels int,
 	SDKVersion uint32,
 	ppDevice **ID3D11Device,
 	pFeatureLevel *D3D_FEATURE_LEVEL,
@@ -242,7 +242,7 @@ func D3D11CreateDevice(
 	return nil
 }
 
-var pCreateDirect3D11DeviceFromDXGIDevice = d3d11DLL.MustFindProc("CreateDirect3D11DeviceFromDXGIDevice")
+var pCreateDirect3D11DeviceFromDXGIDevice = d3d11DLL.NewProc("CreateDirect3D11DeviceFromDXGIDevice")
 
 func CreateDirect3D11DeviceFromDXGIDevice(dxgiDevice *IDXGIDevice, graphicsDevice **ole.IInspectable) error {
 	r1, _, err := pCreateDirect3D11DeviceFromDXGIDevice.Call(uintptr(unsafe.Pointer(dxgiDevice)), uintptr(unsafe.Pointer(graphicsDevice)))
