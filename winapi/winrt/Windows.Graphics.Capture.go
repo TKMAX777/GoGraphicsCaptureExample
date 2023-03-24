@@ -115,7 +115,6 @@ var Direct3D11CaptureFramePoolClass = "Windows.Graphics.Capture.Direct3D11Captur
 
 // IDirect3D11CaptureFramePool
 
-var IDirect3D11CaptureFramePoolClass = "Windows.Graphics.Capture.IDirect3D11CaptureFramePool"
 var IDirect3D11CaptureFramePoolID = ole.NewGUID("{24EB6D22-1975-422E-82E7-780DBD8DDF24}")
 
 type IDirect3D11CaptureFramePool struct {
@@ -175,7 +174,6 @@ func (v *IDirect3D11CaptureFramePool) TryGetNextFrame() (*IDirect3D11CaptureFram
 
 // IDirect3D11CaptureFramePoolStatics
 
-var IDirect3D11CaptureFramePoolStaticsClass = "Windows.Graphics.Capture.IDirect3D11CaptureFramePoolStatics"
 var IDirect3D11CaptureFramePoolStaticsID = ole.NewGUID("{7784056A-67AA-4D53-AE54-1088D5A8CA21}")
 
 type IDirect3D11CaptureFramePoolStatics struct {
@@ -206,7 +204,6 @@ func (v *IDirect3D11CaptureFramePoolStatics) Create(device *IDirect3DDevice, pix
 
 // IDirect3D11CaptureFramePoolStatics2
 
-var IDirect3D11CaptureFramePoolStatics2Class = "Windows.Graphics.Capture.IDirect3D11CaptureFramePoolStatics"
 var IDirect3D11CaptureFramePoolStatics2ID = ole.NewGUID("{589B103F-6BBC-5DF5-A991-02E28B3B66D5}")
 
 type IDirect3D11CaptureFramePoolStatics2 struct {
