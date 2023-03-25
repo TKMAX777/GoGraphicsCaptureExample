@@ -2,6 +2,7 @@ package winrt
 
 import (
 	"errors"
+	"fmt"
 	"runtime"
 	"syscall"
 	"unsafe"
@@ -96,9 +97,6 @@ func (v *IGraphicsCaptureItemStatics2) VTable() *IGraphicsCaptureItemStatics2Vtb
 	return (*IGraphicsCaptureItemStatics2Vtbl)(unsafe.Pointer(v.RawVTable))
 }
 
-// ITypedEventHandler
-var ITypedEventHandlerID = ole.NewGUID("{51A947F7-79CF-5A3E-A3A5-1289CFA6DFE8}")
-
 // Direct3D11CaptureFramePool
 
 type Direct3D11CaptureFramePool struct {
@@ -140,6 +138,7 @@ func (v *Direct3D11CaptureFramePool) queryInterface(lpMyObj *uintptr, riid *uint
 	if lpMyObj == nil {
 		return win.E_INVALIDARG
 	}
+
 	var V = (*Direct3D11CaptureFramePool)(unsafe.Pointer(lpMyObj))
 	var err error
 	// Check dereferencability
@@ -160,10 +159,9 @@ func (v *Direct3D11CaptureFramePool) queryInterface(lpMyObj *uintptr, riid *uint
 
 	// Convert
 	switch id.String() {
-	case ole.IID_IUnknown.String(), ITypedEventHandlerID.String():
-		var newV = *V
-		var newVp = &newV
-		*lppvObj = (*uintptr)(unsafe.Pointer(&newVp))
+	case ole.IID_IUnknown.String(), ITypedEventHandlerID.String(), IAgileObjectID.String():
+		*lppvObj = (*uintptr)(unsafe.Pointer(&V))
+		V.AddRef()
 		return win.S_OK
 	default:
 		return win.E_NOINTERFACE
@@ -178,6 +176,8 @@ func (v *Direct3D11CaptureFramePool) addRef(lpMyObj *uintptr) uintptr {
 
 	var V = (*Direct3D11CaptureFramePool)(unsafe.Pointer(lpMyObj))
 	V.VTable().vtblReferences = append(V.VTable().vtblReferences, V.VTable())
+	fmt.Println("ADD: ", V.VTable().vtblReferences)
+
 	return uintptr(len(v.VTable().vtblReferences))
 }
 
@@ -190,6 +190,8 @@ func (v *Direct3D11CaptureFramePool) release(lpMyObj *uintptr) uintptr {
 	var V = (*Direct3D11CaptureFramePool)(unsafe.Pointer(lpMyObj))
 	V.VTable().vtblReferences = nil
 	runtime.GC()
+	fmt.Println("RELEASE")
+
 	return win.S_OK
 }
 
