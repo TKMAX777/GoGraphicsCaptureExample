@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"unsafe"
 
 	"github.com/TKMAX777/GoGraphicsCaptureExample/winapi/dx11"
 	"github.com/TKMAX777/GoGraphicsCaptureExample/winapi/winrt"
@@ -133,9 +134,9 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 	}
 
 	// Set frame settings
-	var eventObject = winrt.NewDirect3D11CaptureFramePool(c.onFrameArrived)
+	var eventObject = NewDirect3D11CaptureFramePool(c.onFrameArrived)
 
-	c.framePoolToken, err = c.framePool.AddFrameArrived(eventObject)
+	c.framePoolToken, err = c.framePool.AddFrameArrived(uintptr(unsafe.Pointer(eventObject)))
 	if err != nil {
 		return errors.Wrap(err, "AddFrameArrived")
 	}

@@ -1,9 +1,6 @@
 package winrt
 
 import (
-	"errors"
-	"fmt"
-	"runtime"
 	"syscall"
 	"unsafe"
 
@@ -98,104 +95,6 @@ func (v *IGraphicsCaptureItemStatics2) VTable() *IGraphicsCaptureItemStatics2Vtb
 }
 
 // Direct3D11CaptureFramePool
-
-type Direct3D11CaptureFramePool struct {
-	ole.IUnknown
-}
-
-type Direct3D11CaptureFramePoolVtbl struct {
-	ole.IUnknownVtbl
-	Invoke         uintptr
-	vtblReferences []interface{}
-}
-
-type Direct3D11CaptureFramePoolFrameArrivedProcType func(sender *IDirect3D11CaptureFramePool, args *ole.IInspectable) uintptr
-
-func NewDirect3D11CaptureFramePool(invoke Direct3D11CaptureFramePoolFrameArrivedProcType) *Direct3D11CaptureFramePool {
-	var v = &Direct3D11CaptureFramePoolVtbl{
-		Invoke: syscall.NewCallback(invoke),
-		// Protect from gabage collecter
-		vtblReferences: make([]interface{}, 1),
-	}
-
-	var newV = (*Direct3D11CaptureFramePool)(unsafe.Pointer(v))
-
-	v.QueryInterface = syscall.NewCallback(newV.queryInterface)
-	v.AddRef = syscall.NewCallback(newV.addRef)
-	v.Release = syscall.NewCallback(newV.release)
-	v.vtblReferences[0] = (interface{})(v)
-
-	return newV
-}
-
-func (v *Direct3D11CaptureFramePool) VTable() *Direct3D11CaptureFramePoolVtbl {
-	return (*Direct3D11CaptureFramePoolVtbl)(unsafe.Pointer(v.RawVTable))
-}
-
-// QueryInterface(vp *Direct3D11CaptureFramePool, riid ole.GUID, lppvObj **ole.Inspectable)
-func (v *Direct3D11CaptureFramePool) queryInterface(lpMyObj *uintptr, riid *uintptr, lppvObj **uintptr) (hr uintptr) {
-	// Validate input
-	if lpMyObj == nil {
-		return win.E_INVALIDARG
-	}
-
-	var V = (*Direct3D11CaptureFramePool)(unsafe.Pointer(lpMyObj))
-	var err error
-	// Check dereferencability
-	func() {
-		defer func() {
-			if recover() != nil {
-				err = errors.New("InvalidObject")
-			}
-		}()
-		// if object cannot be dereferenced, then panic occurs
-		v.VTable()
-	}()
-	if err != nil {
-		return win.E_INVALIDARG
-	}
-
-	var id = (*ole.GUID)(unsafe.Pointer(riid))
-
-	// Convert
-	switch id.String() {
-	case ole.IID_IUnknown.String(), ITypedEventHandlerID.String(), IAgileObjectID.String():
-		*lppvObj = (*uintptr)(unsafe.Pointer(&V))
-		V.AddRef()
-		return win.S_OK
-	default:
-		return win.E_NOINTERFACE
-	}
-}
-
-func (v *Direct3D11CaptureFramePool) addRef(lpMyObj *uintptr) uintptr {
-	// Validate input
-	if lpMyObj == nil {
-		return 1
-	}
-
-	var V = (*Direct3D11CaptureFramePool)(unsafe.Pointer(lpMyObj))
-	V.VTable().vtblReferences = append(V.VTable().vtblReferences, V.VTable())
-	fmt.Println("ADD: ", V.VTable().vtblReferences)
-
-	return uintptr(len(v.VTable().vtblReferences))
-}
-
-func (v *Direct3D11CaptureFramePool) release(lpMyObj *uintptr) uintptr {
-	// Validate input
-	if lpMyObj == nil {
-		return 1
-	}
-
-	var V = (*Direct3D11CaptureFramePool)(unsafe.Pointer(lpMyObj))
-	V.VTable().vtblReferences = nil
-	runtime.GC()
-	fmt.Println("RELEASE")
-
-	return win.S_OK
-}
-
-// Direct3D11CaptureFramePool
 // https://learn.microsoft.com/en-us/uwp/api/windows.graphics.capture.direct3d11captureframepool?view=winrt-22621
 var Direct3D11CaptureFramePoolClass = "Windows.Graphics.Capture.Direct3D11CaptureFramePool"
 
@@ -221,7 +120,9 @@ func (v *IDirect3D11CaptureFramePool) VTable() *IDirect3D11CaptureFramePoolVtbl 
 	return (*IDirect3D11CaptureFramePoolVtbl)(unsafe.Pointer(v.RawVTable))
 }
 
-func (v *IDirect3D11CaptureFramePool) AddFrameArrived(eventHandler *Direct3D11CaptureFramePool) (*EventRegistrationToken, error) {
+type Direct3D11CaptureFramePoolFrameArrivedProcType func(sender *IDirect3D11CaptureFramePool, args *ole.IInspectable) uintptr
+
+func (v *IDirect3D11CaptureFramePool) AddFrameArrived(eventHandler uintptr) (*EventRegistrationToken, error) {
 	var token EventRegistrationToken
 	r1, _, _ := syscall.SyscallN(v.VTable().add_FrameArrived, uintptr(unsafe.Pointer(v)), uintptr(unsafe.Pointer(&eventHandler)), uintptr(unsafe.Pointer(&token.value)))
 	if r1 != win.S_OK {
