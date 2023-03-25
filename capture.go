@@ -134,8 +134,6 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 
 	// Set frame settings
 	var eventObject = winrt.NewDirect3D11CaptureFramePool(c.onFrameArrived)
-	// var eventObject winrt.Direct3D11CaptureFramePoolVtbl
-	// eventObject.Invoke = syscall.NewCallback(c.onFrameArrived)
 
 	c.framePoolToken, err = c.framePool.AddFrameArrived(eventObject)
 	if err != nil {
@@ -157,13 +155,12 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 }
 
 func (c *CaptureHandler) onFrameArrived(sender *winrt.IDirect3D11CaptureFramePool, args *ole.IInspectable) uintptr {
+	fmt.Println("Arrived")
 	_, err := sender.TryGetNextFrame()
 	if err != nil {
 		os.Stderr.Write([]byte("Error: TryGetNextFrame: " + err.Error()))
 		return 0
 	}
-
-	fmt.Println("Arrived")
 
 	return 0
 }
