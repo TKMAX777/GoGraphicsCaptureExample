@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 	"unsafe"
 
 	"github.com/TKMAX777/GoGraphicsCaptureExample/winapi/dx11"
@@ -47,9 +48,6 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 	if err != nil {
 		return errors.Wrap(err, "D3DCreateDevice")
 	}
-
-	var context = c.deviceDx.GetImmediateContext()
-	defer context.Release()
 
 	// Query interface of DXGIDevice
 	var dxgiDevice *dx11.IDXGIDevice
@@ -151,7 +149,9 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 	if err != nil {
 		return errors.Wrap(err, "StartCapture")
 	}
-
+	for {
+		time.Sleep(time.Second)
+	}
 	return nil
 }
 

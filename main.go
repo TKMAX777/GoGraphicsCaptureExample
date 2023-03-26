@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/TKMAX777/GoGraphicsCaptureExample/winapi"
 	"github.com/lxn/win"
@@ -32,9 +31,5 @@ func main() {
 		return
 	}
 	defer handler.Close()
-
-	for {
-		time.Sleep(time.Second)
-	}
 
 }
