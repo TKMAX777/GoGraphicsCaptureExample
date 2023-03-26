@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"runtime"
 	"syscall"
 	"unsafe"
@@ -97,7 +96,6 @@ func (v *Direct3D11CaptureFramePool) queryInterface(lpMyObj *uintptr, riid *uint
 	*id = *(*ole.GUID)(unsafe.Pointer(riid))
 
 	// Convert
-	fmt.Println(id.String())
 	switch id.String() {
 	case ole.IID_IUnknown.String(), winrt.ITypedEventHandlerID.String():
 		V.AddRef()
