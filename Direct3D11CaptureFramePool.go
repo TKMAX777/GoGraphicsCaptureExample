@@ -22,16 +22,14 @@ type Direct3D11CaptureFramePool struct {
 
 type Direct3D11CaptureFramePoolVtbl struct {
 	ole.IUnknownVtbl
-	Invoke     uintptr
-	counter    int
-	marshaller *ole.IUnknown
+	Invoke  uintptr
+	counter int
 }
 
 func NewDirect3D11CaptureFramePool(invoke winrt.Direct3D11CaptureFramePoolFrameArrivedProcType) *Direct3D11CaptureFramePool {
 	var v = &Direct3D11CaptureFramePoolVtbl{
-		Invoke:     syscall.NewCallback(invoke),
-		counter:    0,
-		marshaller: nil,
+		Invoke:  syscall.NewCallback(invoke),
+		counter: 0,
 	}
 
 	var newV = new(Direct3D11CaptureFramePool)
@@ -42,17 +40,6 @@ func NewDirect3D11CaptureFramePool(invoke winrt.Direct3D11CaptureFramePoolFrameA
 	v.Release = syscall.NewCallback(newV.release)
 
 	generatedDirect3D11CaptureFramePool[uintptr(unsafe.Pointer(newV))] = v
-
-	var Unknown *ole.IUnknown
-	err := newV.PutQueryInterface(ole.IID_IUnknown, &Unknown)
-	if err != nil {
-		panic(err)
-	}
-
-	v.marshaller, err = winrt.CoCreateFreeThreadedMarshaler(Unknown)
-	if err != nil {
-		panic(err)
-	}
 
 	return newV
 }

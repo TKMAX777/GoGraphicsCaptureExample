@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/TKMAX777/GoGraphicsCaptureExample/winapi"
 	"github.com/lxn/win"
@@ -32,4 +35,7 @@ func main() {
 	}
 	defer handler.Close()
 
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+	<-sc
 }

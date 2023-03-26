@@ -120,7 +120,8 @@ func (v *IDirect3D11CaptureFramePool) VTable() *IDirect3D11CaptureFramePoolVtbl 
 	return (*IDirect3D11CaptureFramePoolVtbl)(unsafe.Pointer(v.RawVTable))
 }
 
-type Direct3D11CaptureFramePoolFrameArrivedProcType func(sender *IDirect3D11CaptureFramePool, args *ole.IInspectable) uintptr
+// type Direct3D11CaptureFramePoolFrameArrivedProcType func(this *Direct3D11CaptureFramePool, sender *IDirect3D11CaptureFramePool, args *ole.IInspectable) uintptr
+type Direct3D11CaptureFramePoolFrameArrivedProcType func(this *uintptr, sender *IDirect3D11CaptureFramePool, args *ole.IInspectable) uintptr
 
 /*
 eventHandler:
