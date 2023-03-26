@@ -35,12 +35,12 @@ func NewDirect3D11CaptureFramePool(invoke winrt.Direct3D11CaptureFramePoolFrameA
 		marshaller: nil,
 	}
 
-	v.QueryInterface = syscall.NewCallback(Direct3D11CaptureFramePoolQueryInterface)
-	v.AddRef = syscall.NewCallback(Direct3D11CaptureFramePoolAddRef)
-	v.Release = syscall.NewCallback(Direct3D11CaptureFramePoolRelease)
-
 	var newV = new(Direct3D11CaptureFramePool)
 	newV.RawVTable = (*interface{})(unsafe.Pointer(v))
+
+	v.QueryInterface = syscall.NewCallback(newV.queryInterface)
+	v.AddRef = syscall.NewCallback(newV.addRef)
+	v.Release = syscall.NewCallback(newV.release)
 
 	generatedDirect3D11CaptureFramePool[uintptr(unsafe.Pointer(newV))] = v
 
@@ -68,7 +68,7 @@ func (v *Direct3D11CaptureFramePool) Invoke(sender *winrt.IDirect3D11CaptureFram
 }
 
 // QueryInterface(vp *Direct3D11CaptureFramePool, riid ole.GUID, lppvObj **ole.Inspectable)
-func Direct3D11CaptureFramePoolQueryInterface(lpMyObj *uintptr, riid *uintptr, lppvObj **uintptr) uintptr {
+func (v *Direct3D11CaptureFramePool) queryInterface(lpMyObj *uintptr, riid *uintptr, lppvObj **uintptr) uintptr {
 	// Validate input
 	if lpMyObj == nil {
 		return win.E_INVALIDARG
@@ -109,7 +109,7 @@ func Direct3D11CaptureFramePoolQueryInterface(lpMyObj *uintptr, riid *uintptr, l
 	}
 }
 
-func Direct3D11CaptureFramePoolAddRef(lpMyObj *uintptr) uintptr {
+func (v *Direct3D11CaptureFramePool) addRef(lpMyObj *uintptr) uintptr {
 	// Validate input
 	if lpMyObj == nil {
 		return 0
@@ -121,7 +121,7 @@ func Direct3D11CaptureFramePoolAddRef(lpMyObj *uintptr) uintptr {
 	return uintptr(V.VTable().counter)
 }
 
-func Direct3D11CaptureFramePoolRelease(lpMyObj *uintptr) uintptr {
+func (v *Direct3D11CaptureFramePool) release(lpMyObj *uintptr) uintptr {
 	// Validate input
 	if lpMyObj == nil {
 		return 0
