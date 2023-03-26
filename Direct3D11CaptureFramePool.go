@@ -14,6 +14,9 @@ import (
 
 // Direct3D11CaptureFramePool
 
+// Protect from gabage collecter
+var generatedDirect3D11CaptureFramePool = map[uintptr]*Direct3D11CaptureFramePoolVtbl{}
+
 type Direct3D11CaptureFramePool struct {
 	ole.IUnknown
 }
@@ -21,7 +24,6 @@ type Direct3D11CaptureFramePool struct {
 type Direct3D11CaptureFramePoolVtbl struct {
 	ole.IUnknownVtbl
 	Invoke     uintptr
-	originalV  *Direct3D11CaptureFramePool
 	counter    int
 	marshaller *ole.IUnknown
 }
@@ -29,25 +31,21 @@ type Direct3D11CaptureFramePoolVtbl struct {
 func NewDirect3D11CaptureFramePool(invoke winrt.Direct3D11CaptureFramePoolFrameArrivedProcType) *Direct3D11CaptureFramePool {
 	var v = &Direct3D11CaptureFramePoolVtbl{
 		Invoke:     syscall.NewCallback(invoke),
-		originalV:  nil,
-		counter:    1,
+		counter:    0,
 		marshaller: nil,
 	}
-
-	var newV = new(Direct3D11CaptureFramePool)
-
-	newV.RawVTable = (*interface{})(unsafe.Pointer(v))
 
 	v.QueryInterface = syscall.NewCallback(Direct3D11CaptureFramePoolQueryInterface)
 	v.AddRef = syscall.NewCallback(Direct3D11CaptureFramePoolAddRef)
 	v.Release = syscall.NewCallback(Direct3D11CaptureFramePoolRelease)
-	// Protect from gabage collecter
-	v.originalV = newV
 
-	fmt.Println(newV.VTable())
-	var err error
+	var newV = new(Direct3D11CaptureFramePool)
+	newV.RawVTable = (*interface{})(unsafe.Pointer(v))
+
+	generatedDirect3D11CaptureFramePool[uintptr(unsafe.Pointer(newV))] = v
+
 	var Unknown *ole.IUnknown
-	err = newV.PutQueryInterface(ole.IID_IUnknown, &Unknown)
+	err := newV.PutQueryInterface(ole.IID_IUnknown, &Unknown)
 	if err != nil {
 		panic(err)
 	}
@@ -70,13 +68,14 @@ func (v *Direct3D11CaptureFramePool) Invoke(sender *winrt.IDirect3D11CaptureFram
 }
 
 // QueryInterface(vp *Direct3D11CaptureFramePool, riid ole.GUID, lppvObj **ole.Inspectable)
-func Direct3D11CaptureFramePoolQueryInterface(lpMyObj *uintptr, riid *uintptr, lppvObj **uintptr) (hr uintptr) {
+func Direct3D11CaptureFramePoolQueryInterface(lpMyObj *uintptr, riid *uintptr, lppvObj **uintptr) uintptr {
 	// Validate input
 	if lpMyObj == nil {
 		return win.E_INVALIDARG
 	}
 
-	var V = (*Direct3D11CaptureFramePool)(unsafe.Pointer(lpMyObj))
+	var V = new(Direct3D11CaptureFramePool)
+
 	var err error
 	// Check dereferencability
 	func() {
@@ -86,6 +85,7 @@ func Direct3D11CaptureFramePoolQueryInterface(lpMyObj *uintptr, riid *uintptr, l
 			}
 		}()
 		// if object cannot be dereferenced, then panic occurs
+		*V = *(*Direct3D11CaptureFramePool)(unsafe.Pointer(lpMyObj))
 		V.VTable()
 	}()
 	if err != nil {
@@ -93,25 +93,16 @@ func Direct3D11CaptureFramePoolQueryInterface(lpMyObj *uintptr, riid *uintptr, l
 	}
 
 	*lppvObj = nil
-	var id = (*ole.GUID)(unsafe.Pointer(riid))
+	var id = new(ole.GUID)
+	*id = *(*ole.GUID)(unsafe.Pointer(riid))
 
 	// Convert
 	fmt.Println(id.String())
 	switch id.String() {
 	case ole.IID_IUnknown.String(), winrt.ITypedEventHandlerID.String():
-		fmt.Println("OK")
 		V.AddRef()
 		*lppvObj = (*uintptr)(unsafe.Pointer(V))
 
-		fmt.Println(V.VTable())
-		return win.S_OK
-	case winrt.IMarshalID.String():
-		qi, err := V.VTable().marshaller.QueryInterface(winrt.IMarshalID)
-		if err != nil {
-			fmt.Println("MarshallingError: ", err)
-			return win.E_UNEXPECTED
-		}
-		*lppvObj = (*uintptr)(unsafe.Pointer(qi))
 		return win.S_OK
 	default:
 		return win.E_NOINTERFACE
@@ -140,8 +131,11 @@ func Direct3D11CaptureFramePoolRelease(lpMyObj *uintptr) uintptr {
 	V.VTable().counter--
 
 	if V.VTable().counter == 0 {
-		V.VTable().originalV = nil
-		runtime.GC()
+		_, ok := generatedDirect3D11CaptureFramePool[uintptr(unsafe.Pointer(lpMyObj))]
+		if ok {
+			delete(generatedDirect3D11CaptureFramePool, uintptr(unsafe.Pointer(lpMyObj)))
+			runtime.GC()
+		}
 	}
 
 	return uintptr(V.VTable().counter)

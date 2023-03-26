@@ -136,7 +136,7 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 	// Set frame settings
 	var eventObject = NewDirect3D11CaptureFramePool(c.onFrameArrived)
 
-	c.framePoolToken, err = c.framePool.AddFrameArrived(uintptr(unsafe.Pointer(eventObject)))
+	c.framePoolToken, err = c.framePool.AddFrameArrived(unsafe.Pointer(eventObject))
 	if err != nil {
 		return errors.Wrap(err, "AddFrameArrived")
 	}

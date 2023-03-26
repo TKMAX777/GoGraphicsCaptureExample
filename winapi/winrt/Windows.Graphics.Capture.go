@@ -122,9 +122,16 @@ func (v *IDirect3D11CaptureFramePool) VTable() *IDirect3D11CaptureFramePoolVtbl 
 
 type Direct3D11CaptureFramePoolFrameArrivedProcType func(sender *IDirect3D11CaptureFramePool, args *ole.IInspectable) uintptr
 
-func (v *IDirect3D11CaptureFramePool) AddFrameArrived(eventHandler uintptr) (*EventRegistrationToken, error) {
+/*
+eventHandler:
+	interface {
+		IUnknown
+		Invoke(sender *IDirect3D11CaptureFramePool, args *ole.IInspectable) uintptr
+	}
+*/
+func (v *IDirect3D11CaptureFramePool) AddFrameArrived(eventHandler unsafe.Pointer) (*EventRegistrationToken, error) {
 	var token EventRegistrationToken
-	r1, _, _ := syscall.SyscallN(v.VTable().add_FrameArrived, uintptr(unsafe.Pointer(v)), uintptr(unsafe.Pointer(&eventHandler)), uintptr(unsafe.Pointer(&token.value)))
+	r1, _, _ := syscall.SyscallN(v.VTable().add_FrameArrived, uintptr(unsafe.Pointer(v)), uintptr(eventHandler), uintptr(unsafe.Pointer(&token.value)))
 	if r1 != win.S_OK {
 		return nil, ole.NewError(r1)
 	}
