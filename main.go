@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/TKMAX777/GoGraphicsCaptureExample/winapi"
 	"github.com/lxn/win"
@@ -32,6 +33,8 @@ func main() {
 	}
 	defer handler.Close()
 
-	var hoge = make(chan bool)
-	<-hoge
+	for {
+		time.Sleep(time.Second)
+	}
+
 }

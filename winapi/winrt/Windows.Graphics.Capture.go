@@ -147,13 +147,13 @@ func (v *IDirect3D11CaptureFramePool) RemoveFrameArrived(token *EventRegistratio
 }
 
 func (v *IDirect3D11CaptureFramePool) CreateCaptureSession(item *IGraphicsCaptureItem) (*IGraphicsCaptureSession, error) {
-	var session IGraphicsCaptureSession
-	r1, _, _ := syscall.SyscallN(v.VTable().CreateCaptureSession, uintptr(unsafe.Pointer(v)), uintptr(unsafe.Pointer(&item)), uintptr(unsafe.Pointer(&session)))
+	var session *IGraphicsCaptureSession
+	r1, _, _ := syscall.SyscallN(v.VTable().CreateCaptureSession, uintptr(unsafe.Pointer(v)), uintptr(unsafe.Pointer(item)), uintptr(unsafe.Pointer(&session)))
 	if r1 != win.S_OK {
 		return nil, ole.NewError(r1)
 	}
 
-	return &session, nil
+	return session, nil
 }
 
 func (v *IDirect3D11CaptureFramePool) TryGetNextFrame() (*IDirect3D11CaptureFrame, error) {
