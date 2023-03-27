@@ -60,6 +60,7 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 			result <- resultAttr{errors.Wrap(err, "D3DCreateDevice")}
 			return
 		}
+		defer c.deviceDx.Release()
 
 		// Query interface of DXGIDevice
 		var dxgiDevice *dx11.IDXGIDevice
@@ -77,6 +78,7 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 			result <- resultAttr{errors.Wrap(err, "CreateDirect3D11DeviceFromDXGIDevice")}
 			return
 		}
+		defer deviceRT.Release()
 
 		// Query interface of IDirect3DDevice
 		err = deviceRT.PutQueryInterface(winrt.IDirect3DDeviceID, &c.device)
@@ -84,6 +86,7 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 			result <- resultAttr{errors.Wrap(err, "QueryInterface: IDirect3DDeviceID")}
 			return
 		}
+		defer c.device.Release()
 
 		// Create Capture Settings
 		factory, err := ole.RoGetActivationFactory(winrt.GraphicsCaptureItemClass, winrt.IGraphicsCaptureItemInteropID)
@@ -91,6 +94,7 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 			result <- resultAttr{errors.Wrap(err, "RoGetActivationFactory: IGraphicsCaptureItemID")}
 			return
 		}
+		defer factory.Release()
 
 		var interop *winrt.IGraphicsCaptureItemInterop
 		err = factory.PutQueryInterface(winrt.IGraphicsCaptureItemInteropID, &interop)
@@ -98,6 +102,7 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 			result <- resultAttr{errors.Wrap(err, "QueryInterface: IGraphicsCaptureItemInteropID")}
 			return
 		}
+		defer interop.Release()
 
 		var captureItemDispatch *ole.IInspectable
 		/*
@@ -106,6 +111,7 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 			if err != nil {
 				return errors.Wrap(err, "CreateForWindow")
 			}
+			defer captureItemDispatch.Release()
 		*/
 
 		// Capture for the monitor specified
@@ -116,6 +122,7 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 			result <- resultAttr{errors.Wrap(err, "CreateForMonitor")}
 			return
 		}
+		defer captureItemDispatch.Release()
 
 		// Get Interface of IGraphicsCaptureItem
 		err = captureItemDispatch.PutQueryInterface(winrt.IGraphicsCaptureItemID, &c.graphicsCaptureItem)
@@ -140,15 +147,16 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 		defer ins.Release()
 
 		// Get Interface of Direct3D11CaptureFramePoolClass
-		var framePoolStatic *winrt.IDirect3D11CaptureFramePoolStatics
-		err = ins.PutQueryInterface(winrt.IDirect3D11CaptureFramePoolStaticsID, &framePoolStatic)
+		var framePoolStatic *winrt.IDirect3D11CaptureFramePoolStatics2
+		err = ins.PutQueryInterface(winrt.IDirect3D11CaptureFramePoolStatics2ID, &framePoolStatic)
 		if err != nil {
 			result <- resultAttr{errors.Wrap(err, "PutQueryInterface: IDirect3D11CaptureFramePoolStaticsID")}
 			return
 		}
+		defer framePoolStatic.Release()
 
 		// Create frame pool
-		c.framePool, err = framePoolStatic.Create(c.device, winrt.DirectXPixelFormat_B8G8R8A8UIntNormalized, 1, size)
+		c.framePool, err = framePoolStatic.CreateFreeThreaded(c.device, winrt.DirectXPixelFormat_B8G8R8A8UIntNormalized, 1, size)
 		if err != nil {
 			result <- resultAttr{errors.Wrap(err, "CreateFramePool")}
 			return
@@ -162,12 +170,14 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 			result <- resultAttr{errors.Wrap(err, "AddFrameArrived")}
 			return
 		}
+		defer eventObject.Release()
 
 		c.graphicsCaptureSession, err = c.framePool.CreateCaptureSession(c.graphicsCaptureItem)
 		if err != nil {
 			result <- resultAttr{errors.Wrap(err, "CreateCaptureSession")}
 			return
 		}
+		defer c.graphicsCaptureSession.Release()
 
 		// Start capturing
 		err = c.graphicsCaptureSession.StartCapture()
@@ -176,6 +186,8 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 			return
 		}
 		result <- resultAttr{nil}
+
+		fmt.Println("Start Capturing")
 
 		for {
 			var msg win.MSG
@@ -201,7 +213,6 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 
 func (c *CaptureHandler) onFrameArrived(this_ *uintptr, sender *winrt.IDirect3D11CaptureFramePool, args *ole.IInspectable) uintptr {
 	_ = (*Direct3D11CaptureFramePool)(unsafe.Pointer(this_))
-
 	_, err := sender.TryGetNextFrame()
 	if err != nil {
 		os.Stderr.Write([]byte("Error: TryGetNextFrame: " + err.Error()))
