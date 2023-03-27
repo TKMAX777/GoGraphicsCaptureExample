@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"time"
 	"unsafe"
 
 	"github.com/TKMAX777/GoGraphicsCaptureExample/winapi/dx11"
@@ -20,6 +21,7 @@ type CaptureHandler struct {
 	framePool              *winrt.IDirect3D11CaptureFramePool
 	graphicsCaptureSession *winrt.IGraphicsCaptureSession
 	framePoolToken         *winrt.EventRegistrationToken
+	isRunning              bool
 }
 
 func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
@@ -185,28 +187,20 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 			result <- resultAttr{errors.Wrap(err, "StartCapture")}
 			return
 		}
+
+		c.isRunning = true
+
 		result <- resultAttr{nil}
 
-		fmt.Println("Start Capturing")
-
-		for {
-			var msg win.MSG
-			switch win.GetMessage(&msg, 0, 0, 0) {
-			case 0:
-				fmt.Println("EXIT")
-				return
-			case -1:
-				fmt.Println("ERROR")
-				os.Exit(0)
-				return
-			default:
-				win.TranslateMessage(&msg)
-				win.DispatchMessage(&msg)
-			}
+		for c.isRunning {
+			time.Sleep(time.Second)
 		}
 	}()
 
 	var res = <-result
+	close(result)
+
+	fmt.Println("Start Capturing")
 
 	return res.err
 }
@@ -223,6 +217,10 @@ func (c *CaptureHandler) onFrameArrived(this_ *uintptr, sender *winrt.IDirect3D1
 }
 
 func (c *CaptureHandler) Close() error {
+	if !c.isRunning {
+		return nil
+	}
+
 	if c.framePool != nil {
 		err := c.framePool.RemoveFrameArrived(c.framePoolToken)
 		if err != nil {
@@ -251,6 +249,7 @@ func (c *CaptureHandler) Close() error {
 	closable.Close()
 
 	c.graphicsCaptureItem = nil
+	c.isRunning = false
 
 	return nil
 }
