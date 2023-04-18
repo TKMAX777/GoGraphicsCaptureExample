@@ -207,11 +207,17 @@ func (c *CaptureHandler) StartCapture(hwnd win.HWND) error {
 
 func (c *CaptureHandler) onFrameArrived(this_ *uintptr, sender *winrt.IDirect3D11CaptureFramePool, args *ole.IInspectable) uintptr {
 	_ = (*Direct3D11CaptureFramePool)(unsafe.Pointer(this_))
-	_, err := sender.TryGetNextFrame()
+	frame, err := sender.TryGetNextFrame()
 	if err != nil {
 		os.Stderr.Write([]byte("Error: TryGetNextFrame: " + err.Error()))
 		return 0
 	}
+
+	// Do conversions here
+
+	var close *winrt.IClosable
+	frame.PutQueryInterface(winrt.IClosableID, &close)
+	close.Close()
 
 	return 0
 }

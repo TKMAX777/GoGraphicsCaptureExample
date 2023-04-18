@@ -158,13 +158,13 @@ func (v *IDirect3D11CaptureFramePool) CreateCaptureSession(item *IGraphicsCaptur
 }
 
 func (v *IDirect3D11CaptureFramePool) TryGetNextFrame() (*IDirect3D11CaptureFrame, error) {
-	var frame IDirect3D11CaptureFrame
+	var frame *IDirect3D11CaptureFrame
 	r1, _, _ := syscall.SyscallN(v.VTable().TryGetNextFrame, uintptr(unsafe.Pointer(v)), uintptr(unsafe.Pointer(&frame)))
 	if r1 != win.S_OK {
 		return nil, ole.NewError(r1)
 	}
 
-	return &frame, nil
+	return frame, nil
 }
 
 // IDirect3D11CaptureFramePoolStatics
