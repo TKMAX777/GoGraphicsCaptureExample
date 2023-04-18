@@ -6,7 +6,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/TKMAX777/GoGraphicsCaptureExample/winapi/winrt"
+	"github.com/TKMAX777/winapi/winrt"
 	"github.com/go-ole/go-ole"
 	"github.com/lxn/win"
 )

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/TKMAX777/GoGraphicsCaptureExample/winapi"
+	"github.com/TKMAX777/winapi"
 	"github.com/lxn/win"
 )
 

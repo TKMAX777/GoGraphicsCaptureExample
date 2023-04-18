@@ -1,3 +1,5 @@
+github.com/TKMAX777/winapi v0.0.0-20230418140346-c4565d1e9650 h1:wpgMG6X72R/rDyrAoZ2XRL45CpyT73LQmxGiYjjqJBc=
+github.com/TKMAX777/winapi v0.0.0-20230418140346-c4565d1e9650/go.mod h1:RbM0mafj4NdSRgY9LFWZ3b9eezi2TJJX3kkHXsHcE0g=
 github.com/go-ole/go-ole v1.2.6 h1:/Fpf6oFPoeFik9ty7siob0G6Ke8QvQEuVcuChpwXzpY=
 github.com/go-ole/go-ole v1.2.6/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
 github.com/lxn/win v0.0.0-20210218163916-a377121e959e h1:H+t6A/QJMbhCSEH5rAuRxh+CtW96g0Or0Fxa9IKr4uc=
